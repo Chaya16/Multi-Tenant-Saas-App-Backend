@@ -23,29 +23,23 @@ func NewOrderController(s *mgo.Session) *OrderController {
 
 // CreateOrder creates a new Order
 func (oc OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
-	// Stub an order to be populated from the body
-	//o := models.Order{}
-	fmt.Println("inside createorder	")
+
+	//fmt.Println("inside createorder	")
 	var o models.Order
 
 	// Populate the user data
 	json.NewDecoder(r.Body).Decode(&o)
 
-	// Add an Id
-	//o.OrderId = bson.NewObjectId()
+	// Add an Id, using uuid for
 	o.OrderId = uuid.NewV4().String()
 
 	// Write the user to mongo
 	oc.session.DB("test").C("Order").Insert(&o)
 
-	// Marshal provided interface into JSON structure
-	//uj, _ := json.Marshal(u)
-
 	// Write content-type, statuscode, payload
 	fmt.Println("New Order Created, Order ID:", o.OrderId)
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
-	//fmt.Fprintf(w, "%s", uj)
 	json.NewEncoder(w).Encode(o)
 }
 
@@ -56,16 +50,6 @@ func (oc OrderController) GetOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderId := vars["id"]
 
-	// Verify id is ObjectId, otherwise bail
-	/*if !bson.IsObjectIdHex(orderId) {
-		w.WriteHeader(404)
-		return
-	}
-	*/
-	// Grab id
-	//	oid := bson.ObjectIdHex(orderId)
-
-	// Stub user
 	o := models.Order{}
 
 	// Fetch order
@@ -74,15 +58,10 @@ func (oc OrderController) GetOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Marshal provided interface into JSON structure
-	//uj, _ := json.Marshal(u)
-
 	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(o)
-
-	//fmt.Fprintf(w, "%s", uj)
 }
 
 //Delete Order deletes the order with specified order id
@@ -91,12 +70,6 @@ func (oc OrderController) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderId := vars["id"]
 
-	// Verify id is ObjectId, otherwise bail
-	/*if !bson.IsObjectIdHex(orderId) {
-		w.WriteHeader(404)
-		return
-	}*/
-
 	o := models.Order{}
 
 	// Fetch order
@@ -105,9 +78,6 @@ func (oc OrderController) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Grab id
-	//oid := bson.ObjectIdHex(orderId)
-	// Remove from database
 	if err := oc.session.DB("test").C("Order").RemoveId(orderId); err != nil {
 		fmt.Println("Could not find order - %s to delete", orderId)
 		w.WriteHeader(404)
