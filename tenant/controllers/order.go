@@ -142,28 +142,18 @@ func (oc OrderController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 // GetOrders retrieves all the orders
 func (oc OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 
-	// Grab id
-	//vars := mux.Vars(r)
-	//orderId := vars["id"]
-
-	//o := models.Order{}
 	var orders []models.Order
 
-	// Fetch order
-	if err := oc.session.DB("test").C("Order").Find(nil).All(&orders); err != nil {
-		w.WriteHeader(404)
-		return
+	iter := oc.session.DB("test").C("Order").Find(nil).Iter()
+	result := models.Order{}
+	for iter.Next(&result) {
+		orders = append(orders, result)
 	}
 
-	// Marshal provided interface into JSON structure
-	//uj, _ := json.Marshal(u)
-
-	// Write content-type, statuscode, payload
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(&orders)
 
-	//fmt.Fprintf(w, "%s", uj)
 }
 
 //ping resource function
