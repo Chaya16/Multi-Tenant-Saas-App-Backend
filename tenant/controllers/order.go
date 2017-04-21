@@ -35,8 +35,8 @@ func (oc OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	// Add an Id, using uuid for
 	o.OrderId = uuid.NewV4().String()
 	var links models.Links
-	links.Payment = "http://localhost:8080/order/" + o.OrderId + "/pay"
-	links.Order = "http://localhost:8080/order/" + o.OrderId
+	links.Payment = "http://localhost:8080/v1/starbucks/order/" + o.OrderId + "/pay"
+	links.Order = "http://localhost:8080/v1/starbucks/order/" + o.OrderId
 
 	o.Links = links
 	o.Status = "PLACED"
@@ -219,21 +219,6 @@ func (oc OrderController) OrderPayment(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(201)
 	json.NewEncoder(w).Encode(order)
 }
-
-// DeleteOrders deletes all the orders
-/*func (oc OrderController) DeleteOrders(w http.ResponseWriter, r *http.Request) {
-
-	var orders []models.Order
-
-
-
-	oc.session.DB("test").C("Order").Remove(models.Order{})
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(200)
-	json.NewEncoder(w).Encode(&orders)
-
-}*/
 
 //ping resource function
 func (oc OrderController) PingOrderResource(w http.ResponseWriter, r *http.Request) {

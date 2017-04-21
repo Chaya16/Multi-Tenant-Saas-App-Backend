@@ -17,14 +17,13 @@ func main() {
 	// Get a UserController instance
 	oc := controllers.NewOrderController(getSession())
 
-	r.HandleFunc("/order", oc.CreateOrder).Methods("POST")
-	r.HandleFunc("/order/{id}", oc.GetOrder).Methods("GET")
-	r.HandleFunc("/orders", oc.GetOrders).Methods("GET")
-	//r.HandleFunc("/orders", oc.DeleteOrders).Methods("DELETE")
-	r.HandleFunc("/order/{id}", oc.DeleteOrder).Methods("DELETE")
-	r.HandleFunc("/order/{id}", oc.UpdateOrder).Methods("PUT")
-	r.HandleFunc("/order/{id}/pay", oc.OrderPayment).Methods("POST")
-	r.HandleFunc("/ping", oc.PingOrderResource)
+	r.HandleFunc("/v1/starbucks/order", oc.CreateOrder).Methods("POST")
+	r.HandleFunc("/v1/starbucks/order/{id}", oc.GetOrder).Methods("GET")
+	r.HandleFunc("/v1/starbucks/orders", oc.GetOrders).Methods("GET")
+	r.HandleFunc("/v1/starbucks/order/{id}", oc.DeleteOrder).Methods("DELETE")
+	r.HandleFunc("/v1/starbucks/order/{id}", oc.UpdateOrder).Methods("PUT")
+	r.HandleFunc("/v1/starbucks/order/{id}/pay", oc.OrderPayment).Methods("POST")
+	r.HandleFunc("/v1/starbucks/ping", oc.PingOrderResource)
 	r.Handle("/", r)
 
 	fmt.Println("serving on port 8080")
