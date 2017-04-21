@@ -20,8 +20,10 @@ func main() {
 	r.HandleFunc("/order", oc.CreateOrder).Methods("POST")
 	r.HandleFunc("/order/{id}", oc.GetOrder).Methods("GET")
 	r.HandleFunc("/orders", oc.GetOrders).Methods("GET")
+	//r.HandleFunc("/orders", oc.DeleteOrders).Methods("DELETE")
 	r.HandleFunc("/order/{id}", oc.DeleteOrder).Methods("DELETE")
 	r.HandleFunc("/order/{id}", oc.UpdateOrder).Methods("PUT")
+	r.HandleFunc("/order/{id}/pay", oc.OrderPayment).Methods("POST")
 	r.HandleFunc("/ping", oc.PingOrderResource)
 	r.Handle("/", r)
 

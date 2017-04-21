@@ -126,6 +126,43 @@ func (oc OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// GetOrders retrieves all the orders
+func (oc OrderController) OrderPayment(w http.ResponseWriter, r *http.Request) {
+	//fmt.Println("inside createorder	")
+	vars := mux.Vars(r)
+	orderId := vars["id"]
+
+	o := models.Order{}
+
+	json.NewDecoder(r.Body).Decode(&o)
+
+	if err := oc.session.DB("test").C("Order").UpdateId(orderId, &o); err != nil {
+		w.WriteHeader(404)
+		return
+	}
+
+	// Write content-type, statuscode, payload
+	fmt.Println("Order Status Updated: ", o.Status)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(201)
+	json.NewEncoder(w).Encode(o)
+}
+
+// DeleteOrders deletes all the orders
+/*func (oc OrderController) DeleteOrders(w http.ResponseWriter, r *http.Request) {
+
+	var orders []models.Order
+
+
+
+	oc.session.DB("test").C("Order").Remove(models.Order{})
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(200)
+	json.NewEncoder(w).Encode(&orders)
+
+}*/
+
 //ping resource function
 func (oc OrderController) PingOrderResource(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Pinging Order Resource")
