@@ -1,17 +1,40 @@
-package controllers
+package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"runtime"
 	"time"
 
-	"../models"
+	mgo "gopkg.in/mgo.v2"
+
+	"encoding/json"
+
 	"github.com/gorilla/mux"
 	"github.com/satori/go.uuid"
-	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
+
+type Order struct {
+	OrderId  string `json:"id" bson:"_id"`
+	Location string `json:"location" bson:"location"`
+	Items    []Item `json:"items" bson:"items"`
+	Status   string `json:"status" bson:"status"`
+	Message  string `json:"message" bson:"message"`
+	Links    Links  `json:"links" bson:"links"`
+}
+
+type Links struct {
+	Payment string `json:"payment,omitempty"`
+	Order   string `json:"order,omitempty"`
+}
+
+type Item struct {
+	Name     string `json:"name" bson:"Name"`
+	Milk     string `json:"milk" bson:"Milk"`
+	Size     string `json:"size" bson:"Size"`
+	Quantity int    `json:"qty" bson:"Quantity"`
+}
 
 // OrderController represents the controller for operating on the Order resource
 type OrderController struct {
@@ -27,14 +50,14 @@ func NewOrderController(mgoSession *mgo.Session) *OrderController {
 func (oc OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	//fmt.Println("inside createorder	")
-	var o models.Order
+	var o Order
 
 	// Populate the user data
 	json.NewDecoder(r.Body).Decode(&o)
 
 	// Add an Id, using uuid for
 	o.OrderId = uuid.NewV4().String()
-	var links models.Links
+	var links Links
 	links.Payment = "http://localhost:8080/v1/starbucks/order/" + o.OrderId + "/pay"
 	links.Order = "http://localhost:8080/v1/starbucks/order/" + o.OrderId
 
@@ -58,7 +81,7 @@ func (oc OrderController) GetOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderId := vars["id"]
 
-	o := models.Order{}
+	o := Order{}
 
 	// Fetch order
 	if err := oc.session.DB("test").C("Order").FindId(orderId).One(&o); err != nil {
@@ -80,7 +103,7 @@ func (oc OrderController) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderId := vars["id"]
 
-	o := models.Order{}
+	o := Order{}
 
 	// Fetch order
 	if err := oc.session.DB("test").C("Order").FindId(orderId).One(&o); err != nil {
@@ -114,8 +137,8 @@ func (oc OrderController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	orderId := vars["id"]
 
-	orderFromJson := models.Order{}
-	orderFromDb := models.Order{}
+	orderFromJson := Order{}
+	orderFromDb := Order{}
 	// Fetch order
 	json.NewDecoder(r.Body).Decode(&orderFromJson)
 	// Fetch order
@@ -150,10 +173,10 @@ func (oc OrderController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 // GetOrders retrieves all the orders
 func (oc OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 
-	var orders []models.Order
+	var orders []Order
 
 	iter := oc.session.DB("test").C("Order").Find(nil).Iter()
-	result := models.Order{}
+	result := Order{}
 	for iter.Next(&result) {
 		orders = append(orders, result)
 	}
@@ -169,7 +192,7 @@ func (oc OrderController) OrderPayment(w http.ResponseWriter, r *http.Request) {
 	//fmt.Println("inside createorder	")
 	vars := mux.Vars(r)
 	orderId := vars["id"]
-	order := models.Order{}
+	order := Order{}
 	fmt.Println("pay order")
 	fmt.Println(orderId)
 
@@ -184,26 +207,25 @@ func (oc OrderController) OrderPayment(w http.ResponseWriter, r *http.Request) {
 	//order.Status :="PAID"
 	fmt.Println(order)
 
-	if order.Status == "PAID" || order.Status == "PREPARING" || order.Status == "SERVED" || order.Status == "COLLECTED" {
+	/*if order.Status == "PAID" || order.Status == "PREPARING" || order.Status == "SERVED" || order.Status == "COLLECTED" {
 		w.WriteHeader(400)
 		data := `{"status":"error","message":"Order payment rejected "}`
 		json.NewEncoder(w).Encode(data)
 		return
-	}
+	}*/
 
 	//code to update status to paid goes here
 
-	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"Status": "PAID", "Message": "Payment Accepted"}})
+	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"status": "PAID", "message": "Payment Accepted"}})
 	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$unset": bson.M{"Links.Payment": ""}})
-
-	//CHANGE THE ORDER PROCESSIGN STATUS
 	fmt.Println("Order Status Updated: ", order.Status)
-	time.Sleep(10000)
-	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"Status": "PREPARING"}})
-	time.Sleep(10000)
-	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"Status": "SERVED"}})
-	time.Sleep(10000)
-	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"Status": "COLLECTED"}})
+	runtime.GOMAXPROCS(1)
+	time.Sleep(1000 * time.Millisecond)
+	go changeStatusToPreparing(orderId, oc)
+	time.Sleep(100 * time.Millisecond)
+	go changeStatusToServing(orderId, oc)
+	time.Sleep(100 * time.Millisecond)
+	go changeStatusToCollected(orderId, oc)
 
 	// Fetch order
 	if err := oc.session.DB("test").C("Order").FindId(orderId).One(&order); err != nil {
@@ -220,7 +242,52 @@ func (oc OrderController) OrderPayment(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(order)
 }
 
+func changeStatusToPreparing(orderId string, oc OrderController) {
+	fmt.Println("preparing")
+	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"status": "PREPARING"}})
+
+}
+
+func changeStatusToServing(orderId string, oc OrderController) {
+	fmt.Println("serving")
+	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"status": "SERVED"}})
+
+}
+
+func changeStatusToCollected(orderId string, oc OrderController) {
+	fmt.Println("collected")
+	oc.session.DB("test").C("Order").UpdateId(orderId, bson.M{"$set": bson.M{"status": "COLLECTED"}})
+
+}
+
 //ping resource function
 func (oc OrderController) PingOrderResource(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Pinging Order Resource")
+}
+
+func main() {
+
+	r := mux.NewRouter()
+
+	// Get a UserController instance
+	oc := NewOrderController(getSession())
+
+	r.HandleFunc("/v1/starbucks/order", oc.CreateOrder).Methods("POST")
+	r.HandleFunc("/v1/starbucks/order/{id}", oc.GetOrder).Methods("GET")
+	r.HandleFunc("/v1/starbucks/orders", oc.GetOrders).Methods("GET")
+	r.HandleFunc("/v1/starbucks/order/{id}", oc.DeleteOrder).Methods("DELETE")
+	r.HandleFunc("/v1/starbucks/order/{id}", oc.UpdateOrder).Methods("PUT")
+	r.HandleFunc("/v1/starbucks/order/{id}/pay", oc.OrderPayment).Methods("POST")
+	r.HandleFunc("/v1/starbucks/ping", oc.PingOrderResource)
+	r.Handle("/", r)
+
+	fmt.Println("serving on port 8080")
+	http.ListenAndServe(":8080", r)
+	//go changeDrinkStatus()
+}
+
+func getSession() (s *mgo.Session) {
+	// Connect to local mongodb
+	s, _ = mgo.Dial("mongodb://54.153.71.97")
+	return s
 }
