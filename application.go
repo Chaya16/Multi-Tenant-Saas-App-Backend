@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"runtime"
 	"time"
-        "go/build"
+
 	mgo "gopkg.in/mgo.v2"
 
 	"encoding/json"
