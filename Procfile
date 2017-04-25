@@ -1,1 +1,1 @@
-web: /go/bin/application
+web: ./application
