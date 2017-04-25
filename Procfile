@@ -1,1 +1,1 @@
-web: application
+web: go run application.go
