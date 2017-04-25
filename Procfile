@@ -1,1 +1,1 @@
-web: go run application.go
+web: go-getting-started
