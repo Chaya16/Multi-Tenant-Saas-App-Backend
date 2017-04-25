@@ -2,9 +2,6 @@
 	"ImportPath": "github.com/Chaya16/Multi-Tenant-Saas-App-Backend",
 	"GoVersion": "go1.8",
 	"GodepVersion": "v79",
-	"Packages": [
-		"./..."
-	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/gorilla/mux",
