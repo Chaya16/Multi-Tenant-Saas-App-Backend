@@ -282,12 +282,13 @@ func main() {
 	r.Handle("/", r)
 
 	fmt.Println("serving on port 8080")
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe("8080", r)
+	fmt.Println("server started")
 	//go changeDrinkStatus()
 }
 
 func getSession() (s *mgo.Session) {
 	// Connect to local mongodb
-	s, _ = mgo.Dial("mongodb://54.153.71.97")
+	s, _ = mgo.Dial("mongodb://localhost") //mongodb://54.153.71.97:27017
 	return s
 }
