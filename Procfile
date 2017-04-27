@@ -1,1 +1,1 @@
-web: starbuckscloudapp
+web: application
