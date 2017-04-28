@@ -12,7 +12,6 @@ import (
 	"encoding/json"
 
 	"github.com/gorilla/mux"
-	"github.com/rs/cors"
 	"github.com/satori/go.uuid"
 	"gopkg.in/mgo.v2/bson"
 )
@@ -283,7 +282,7 @@ func main() {
 	r.HandleFunc("/v1/starbucks/ping", oc.PingOrderResource)
 	r.Handle("/", r)
 
-	handler := cors.Default().Handler(mux)
+	//handler := cors.Default().Handler(mux)
 
 	fmt.Println("serving on port 8080")
 	http.ListenAndServe(GetPort(), r)
