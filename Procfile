@@ -1,1 +1,1 @@
-web: application
+web: Multi-Tenant-Saas-App-Backend
