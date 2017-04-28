@@ -283,7 +283,7 @@ func main() {
 	r.Handle("/", r)
 
 	fmt.Println("serving on port 8080")
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(GetPort(), r)
 	//go changeDrinkStatus()
 }
 
