@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"runtime"
 	"time"
 
@@ -284,6 +285,17 @@ func main() {
 	fmt.Println("serving on port 8080")
 	http.ListenAndServe(":8080", r)
 	//go changeDrinkStatus()
+}
+
+// Get the Port from the environment so we can run on Heroku
+func GetPort() string {
+	var port = os.Getenv("PORT")
+	// Set a default port if there is nothing in the environment
+	if port == "" {
+		port = "8080"
+		fmt.Println("INFO: No PORT environment variable detected, defaulting to " + port)
+	}
+	return ":" + port
 }
 
 func getSession() (s *mgo.Session) {
