@@ -300,6 +300,6 @@ func GetPort() string {
 
 func getSession() (s *mgo.Session) {
 	// Connect to local mongodb
-	s, _ = mgo.Dial("mongodb://54.153.71.97")
+	s, _ = mgo.Dial("mongodb://localhost") //54.153.71.97")
 	return s
 }
