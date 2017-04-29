@@ -59,8 +59,8 @@ func (oc OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	// Add an Id, using uuid for
 	o.OrderId = uuid.NewV4().String()
 	var links Links
-	links.Payment = "http://example.herokuapp.com/v1/starbucks/order/" + o.OrderId + "/pay"
-	links.Order = "http://example.herokuapp.com/v1/starbucks/order/" + o.OrderId
+	links.Payment = "http://cloudbucks.herokuapp.com/v1/starbucks/order/" + o.OrderId + "/pay"
+	links.Order = "http://cloudbucks.herokuapp.com/v1/starbucks/order/" + o.OrderId
 
 	o.Links = links
 	o.Status = "PLACED"
