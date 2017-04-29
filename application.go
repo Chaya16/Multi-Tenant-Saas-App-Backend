@@ -273,13 +273,13 @@ func main() {
 	// Get a UserController instance
 	oc := NewOrderController(getSession())
 
-	r.HandleFunc("/v1/starbucks/order", oc.CreateOrder).Methods("POST")
-	r.HandleFunc("/v1/starbucks/order/{id}", oc.GetOrder).Methods("GET")
-	r.HandleFunc("/v1/starbucks/orders", oc.GetOrders).Methods("GET")
-	r.HandleFunc("/v1/starbucks/order/{id}", oc.DeleteOrder).Methods("DELETE")
-	r.HandleFunc("/v1/starbucks/order/{id}", oc.UpdateOrder).Methods("PUT")
-	r.HandleFunc("/v1/starbucks/order/{id}/pay", oc.OrderPayment).Methods("POST")
-	r.HandleFunc("/v1/starbucks/ping", oc.PingOrderResource)
+	r.HandleFunc("/v1/starbucks/store3/order", oc.CreateOrder).Methods("POST")
+	r.HandleFunc("/v1/starbucks/store3/order/{id}", oc.GetOrder).Methods("GET")
+	r.HandleFunc("/v1/starbucks/store3/orders", oc.GetOrders).Methods("GET")
+	r.HandleFunc("/v1/starbucks/store3/order/{id}", oc.DeleteOrder).Methods("DELETE")
+	r.HandleFunc("/v1/starbucks/store3/order/{id}", oc.UpdateOrder).Methods("PUT")
+	r.HandleFunc("/v1/starbucks/store3/order/{id}/pay", oc.OrderPayment).Methods("POST")
+	r.HandleFunc("/ping", oc.PingOrderResource)
 	r.Handle("/", r)
 
 	//handler := cors.Default().Handler(mux)
