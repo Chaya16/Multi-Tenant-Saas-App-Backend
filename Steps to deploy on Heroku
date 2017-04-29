@@ -1,0 +1,36 @@
+Ensure that GOPATH variable has been set
+
+Ensure that $GOPATH/bin has been added to your $PATH
+
+Make sure that your git repository contains Procfile in which the following conten is there- web:application, where web specifies that 
+web application will run, and application is the name of the command to be executed which is your git repo name 
+and can be found in GOPATH/bin
+
+To avoid any PORT related errors when deploying you app on heroku include the following code snippet:
+var port = os.Getenv("PORT")
+	// Set a default port if there is nothing in the environment
+	if port == "" {
+		port = "8080"
+		fmt.Println("INFO: No PORT environment variable detected, defaulting to " + port)
+	}
+
+Install Godeps
+
+For including any dependicies in your code do: go get "dependency path".
+Then execute godep save
+
+Download Heroku CLI
+
+Execute command "heroku login" and enter your login credentials
+
+Assuming that you are in the root directory of the application which is located inside of your $GOPATH execute the following commands:
+  * go get github.com/name of your git repository
+  * heroku create -b https://github.com/kr/heroku-buildpack-go.git
+  * git push heroku master
+  * if the above command shows some error like repository does not exist or cannot deploy to this repository, then use 
+    git remote set-url heroku  "name of app that came when heroku create command is executed"
+  * heroku open to open your app
+  * heroku ps to see the process status
+  * heroku logs --tail to see the logs for your app
+   
+  
