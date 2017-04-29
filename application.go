@@ -70,6 +70,7 @@ func (oc OrderController) CreateOrder(w http.ResponseWriter, r *http.Request) {
 
 	// Write content-type, statuscode, payload
 	fmt.Println("New Order Created, Order ID:", o.OrderId)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)
 	json.NewEncoder(w).Encode(o)
@@ -93,7 +94,9 @@ func (oc OrderController) GetOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Write content-type, statuscode, payload
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
+
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(o)
 }
@@ -128,7 +131,9 @@ func (oc OrderController) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(204)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	data := `{"status":"success","message":"Order has been deleted"}`
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(data)
 }
 
@@ -165,6 +170,7 @@ func (oc OrderController) UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Println("Order Updated:", orderId)
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(orderFromJson)
@@ -182,7 +188,9 @@ func (oc OrderController) GetOrders(w http.ResponseWriter, r *http.Request) {
 		orders = append(orders, result)
 	}
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
+
 	w.WriteHeader(200)
 	json.NewEncoder(w).Encode(&orders)
 
@@ -281,12 +289,10 @@ func main() {
 	r.HandleFunc("/v1/starbucks/store3/order/{id}/pay", oc.OrderPayment).Methods("POST")
 	r.HandleFunc("/ping", oc.PingOrderResource)
 	r.Handle("/", r)
+	fmt.Println("serving on port" + GetPort())
 
-	//handler := cors.Default().Handler(mux)
-
-	fmt.Println("serving on port 8080")
 	http.ListenAndServe(GetPort(), r)
-	//go changeDrinkStatus()
+
 }
 
 // Get the Port from the environment so we can run on Heroku
