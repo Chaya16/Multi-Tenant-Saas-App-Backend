@@ -130,10 +130,12 @@ func (oc OrderController) DeleteOrder(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		return
 	}
-	w.WriteHeader(204)
+
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-	data := `{"status":"success","message":"Order has been deleted"}`
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(204)
+
+	data := `{"status":"success","message":"Order has been deleted"}`
 	json.NewEncoder(w).Encode(data)
 }
 
