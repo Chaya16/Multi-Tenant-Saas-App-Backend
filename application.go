@@ -282,6 +282,7 @@ func main() {
 
 	// Get a UserController instance
 	oc := NewOrderController(getSession())
+	r.Methods("OPTIONS").HandlerFunc(IgnoreOption)
 
 	r.HandleFunc("/v1/starbucks/store3/order", oc.CreateOrder).Methods("POST")
 	r.HandleFunc("/v1/starbucks/store3/order/{id}", oc.GetOrder).Methods("GET")
@@ -295,6 +296,12 @@ func main() {
 
 	http.ListenAndServe(GetPort(), r)
 
+}
+
+func IgnoreOption(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 }
 
 // Get the Port from the environment so we can run on Heroku
