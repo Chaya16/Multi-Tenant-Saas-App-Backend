@@ -1,0 +1,33 @@
+1. install mongo on amazon ec2:
+https://docs.mongodb.com/manual/tutorial/install-mongodb-on-amazon/
+open 27017 port in securty group
+
+2. sudo vi /etc/mongod.conf
+comment bindp line ( to open in write mode use insert)
+
+3. test the connection with mongo
+https://docs.mongodb.com/manual/tutorial/troubleshoot-replica-sets/#replica-set-troubleshooting-check-connection
+mongo --host m2.example.net --port 27017
+
+4. Connect to mongo instance 1, 2 and 3 and run the following commands:
+cd /var/lib/mongo
+
+sudo mkdir data
+
+sudo mkdir data/db
+
+cd ../../../
+
+sudo chmod go+w /var/lib/mongo/data/db
+
+sudo chmod go+w data/db
+
+sudo service mongod stop
+
+mongod --dbpath=/var/lib/mongo/data/db --replSet "rs0" 
+
+5. Connect to mongo instance 1 using a different terminal and run the following commands:
+mongo
+rs.initiate( { _id : "rs0", members: [ { _id : 0, host : "Primary Instance IP:27017" }] })
+rs.add( "IP of Secondary Instance 1")
+rs.add( "IP of Secondary Instance 2")
